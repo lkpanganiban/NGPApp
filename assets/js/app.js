@@ -1,5 +1,4 @@
-var map, featureList, Boundariesearch = [], Hospitalsearch = [], Investmentsearch = [], Trailssearch = [], Bussearch = [], Hotelsearch =[], Churchsearch = [], Policesearch = [], Restaurantsearch = []; 
-
+var map, featureList, Boundariesearch = [], Treesearch = [], Protectedareasearch = [];
 $(document).on("click", ".feature-row", function(e) {
   $(document).off("mouseout", ".feature-row", clearHighlight);
   sidebarClick(parseInt($(this).attr("id"), 10));
@@ -59,7 +58,17 @@ function clearHighlight() {
 
 function sidebarClick(id) {
   var layer = markerClusters.getLayer(id);
-  map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 17);
+
+  var type = layer.feature.geometry.type;
+
+  if(type === "Point"){
+    //For Point
+    map.setView([layer.getLatLng().lat, layer.getLatLng().lng], 20);
+  }else if (type === "MultiPolygon"){
+    //for MultiPolygon
+    map.setView([layer.getBounds().getCenter().lat, layer.getBounds().getCenter().lng], 20);  
+  }
+
   layer.fire("click");
   /* Hide sidebar and go to the map on small screens */
   if (document.body.clientWidth <= 767) {
@@ -71,61 +80,21 @@ function sidebarClick(id) {
 function syncSidebar() {
   /* Empty sidebar features */
   $("#feature-list tbody").empty();
-  /* Loop through Hospitals layer and add only features which are in the map bounds */
-  Hospitals.eachLayer(function (layer) {
-    if (map.hasLayer(hospitalLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/hospital.png"></td><td class="feature-name">' + layer.feature.properties.hf_name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      }
-    }
-  });
-  /* Loop through Investments layer and add only features which are in the map bounds */
-  Investments.eachLayer(function (layer) {
-    if (map.hasLayer(InvestmentLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Investment.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      }
-    }
-  });
-    /* Loop through Buses layer and add only features which are in the map bounds */
-  Buses.eachLayer(function (layer) {
-    if (map.hasLayer(BusLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Bus.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+
+  /* Loop through Monitored Tree layer and add only features which are in the map bounds */
+  Trees.eachLayer(function (layer) {
+    if (map.hasLayer(treeLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/TreeIcon.png"></td><td class="feature-name">' + layer.feature.properties.Id + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
       }
     }
   });
 
-  /* Loop through Hotels layer and add only features which are in the map bounds */
-  Hotels.eachLayer(function (layer) {
-    if (map.hasLayer(HotelLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Hotel.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      }
-    }
-  });
-  /* Loop through Churches layer and add only features which are in the map bounds */
-  Churches.eachLayer(function (layer) {
-    if (map.hasLayer(ChurchLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Church.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      }
-    }
-  });
- /* Loop through Polices layer and add only features which are in the map bounds */
-  Polices.eachLayer(function (layer) {
-    if (map.hasLayer(PoliceLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Police.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      }
-    }
-  });
-
-/* Loop through Restaurant layer and add only features which are in the map bounds */
-  Restaurants.eachLayer(function (layer) {
-    if (map.hasLayer(RestaurantLayer)) {
-      if (map.getBounds().contains(layer.getLatLng())) {
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Restaurant.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+  /* Loop through Protected Areas layer and add only features which are in the map bounds */
+  ProtectedAreas.eachLayer(function (layer) {
+    if (map.hasLayer(protectedLayer)) {
+      if (map.getBounds().contains(layer.getBounds().getCenter())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/eco.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
       }
     }
   });
@@ -139,6 +108,7 @@ function syncSidebar() {
     order: "asc"
   });
 }
+
 
 /* Basemap Layers */
 var mapquestOSM = L.tileLayer("http://{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png", {
@@ -161,6 +131,9 @@ var HereDay = L.tileLayer('http://{s}.{base}.maps.cit.api.here.com/maptile/2.1/m
   maxZoom: 20
 });
 
+var imageUrl = 'ortho/boholJPG3.png',
+    imageBounds = L.latLngBounds([[9.5900527778,123.7387444444], [9.5525694444,123.7651027778]]);
+
 /* Overlay Layers */
 var highlight = L.geoJson(null);
 var highlightStyle = {
@@ -170,6 +143,7 @@ var highlightStyle = {
   radius: 10
 };
 
+//Bohol Boundaries
 var Boundaries = L.geoJson(null, {
   style: function (feature) {
     return {
@@ -182,222 +156,62 @@ var Boundaries = L.geoJson(null, {
   },
   onEachFeature: function (feature, layer) {
     Boundariesearch.push({
-      name: layer.feature.properties.boroName,
+      name: layer.feature.properties.CITY_NAME,
       source: "Boundaries",
       id: L.stamp(layer),
       bounds: layer.getBounds()
     });
   }
 });
-$.getJSON("json/Regions_simplified.json",function (json) {
-      Boundaries.addData(json);
+$.getJSON("json/Bohol_Municipality_simplified.geojson",function (data) {
+      Boundaries.addData(data);
   });
 
-var Protected = L.geoJson(null, {
-  style: function (feature) {
-    return {
-      color:"#29B6F6",
-      fill: "#4CAF50",
-      opacity: 1,
-      clickable: false,
-      weight: 2
-    };
-  }
-});
-$.getJSON("json/ProtectedAreas.json",function (json) {
-      Protected.addData(json);
-  });
-
-
-
-
-
-var trailLines = L.geoJson(null, {
-  style: function (feature) {
-    if (feature.properties.route_id === "0") {
-      return {
-        color: "#F400D9",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "1") {
-      return {
-        color: "#F98300",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "2") {
-      return {
-        color: "#0632FF",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "3") {
-      return {
-        color: "#F7ED31",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "4") {
-      return {
-        color: "#F09F2E",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "5") {
-      return {
-        color: "#30BEFF",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "6") {
-      return {
-        color: "#FF6BD5",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "7") {
-      return {
-        color: "#6e6e6e",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "8") {
-      return {
-        color: "#976900",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "9") {
-      return {
-        color: "#969696",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "10") {
-      return {
-        color: "#ffff00",
-        weight: 3,
-        opacity: 1
-      };
-    }
-    if (feature.properties.route_id === "11") {
-      return {
-        color: "#131723",
-        weight: 3,
-        opacity: 1
-      };
-    }
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Trail Name</th><td>" + feature.properties.group + "</td></tr>" + "<tr><th>Distance</th><td>" + feature.properties.length + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.group);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-
-        }
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_trails_wgs84.geojson", function (data) {
-  trailLines.addData(data);
-});
 
 /* Single marker cluster layer to hold all clusters */
 var markerClusters = new L.MarkerClusterGroup({
   spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
+  showCoverageOnHover: true,
   zoomToBoundsOnClick: true,
-  disableClusteringAtZoom: 16
+  disableClusteringAtZoom: 19
 });
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var BusLayer = L.geoJson(null);
-var Buses = L.geoJson(null, {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.icon({
-        iconUrl: "assets/img/Bus.png",
-        iconSize: [24, 28],
-        iconAnchor: [12, 28],
-        popupAnchor: [0, -25]
-      }),
-      title: feature.properties.name,
-      riseOnHover: true
-    });
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.name + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.name);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
-        }
-      });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Bus.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Bussearch.push({
-        name: layer.feature.properties.name,
-        address: layer.feature.properties.type,
-        source: "Buses",
-        id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_bus.geojson", function (data) {
-  Buses.addData(data);
-});
-
 
 /* Empty layer placeholder to add to layer control for listening when to add/remove Hospitals to markerClusters layer */
-var hospitalLayer = L.geoJson(null);
-var Hospitals = L.geoJson(null, {
+var treeLayer = L.geoJson(null);
+var Trees = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.icon({
-        iconUrl: "assets/img/hospital.png",
-        iconSize: [24, 28],
+        iconUrl: "assets/img/TreeIcon.png",
+        iconSize: [24, 30],
         iconAnchor: [12, 28],
         popupAnchor: [0, -25]
       }),
-      title: feature.properties.hf_name,
+      title: feature.properties.Id,
       riseOnHover: true
     });
   },
   onEachFeature: function (feature, layer) {
     if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>HF Code</th><td>" + feature.properties.hf_code + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<tr><th>Municipality</th><td>" + feature.properties.mun + "</td></tr>" + "<tr><th>Head</th><td>" + "<b>" +feature.properties.hf_head +"<b><small> - "+feature.properties.designatn+"</small>"+ "</td></tr>" + "<table>";
+      var content = "<table class='table table-striped table-bordered table-condensed'>" 
+                    + "<tr><th>Id</th><td>" + feature.properties.Id + "</td></tr>" 
+                    + "<tr><th>Vegetation</th><td>" + feature.properties.Vegetation + "</td></tr>" 
+                    + "<tr><th>Seedlings</th><td>" + feature.properties.Seedlings + "</td></tr>" 
+                    + "<tr><th>Crop Age</th><td>" + "<b>" +feature.properties.MonthsOld +"</b></td></tr>" 
+                    + "<tr><th>Harvest Date</th><td>" + "<b>" +feature.properties.Harvest_da +"</b></td></tr>" 
+                    + "<table>";
       layer.on({
         click: function (e) {
-          $("#feature-title").html(feature.properties.hf_name);
+          $("#feature-title").html(feature.properties.Id);
           $("#feature-info").html(content);
           $("#featureModal").modal("show"); 
           highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
         }
       });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/hospital.png"></td><td class="feature-name">' + layer.feature.properties.hf_name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Hospitalsearch.push({
-        name: layer.feature.properties.hf_name,
-        address: layer.feature.properties.hf_code,
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/TreeIcon.png"></td><td class="feature-name">' + layer.feature.properties.Id + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Treesearch.push({
+        name: layer.feature.properties.Id,
+        address: layer.feature.properties.Vegetation,
         source: "Hospitals",
         id: L.stamp(layer),
         lat: layer.feature.geometry.coordinates[1],
@@ -406,19 +220,19 @@ var Hospitals = L.geoJson(null, {
     }
   }
 });
-$.getJSON("geojson_tarlac/tarlac_hospitals.geojson", function (data) {
-  Hospitals.addData(data);
-  map.addLayer(hospitalLayer);
+$.getJSON("json/Monitored_Trees.geojson", function (data) {
+  Trees.addData(data);
+  map.addLayer(treeLayer);
 });
 
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var InvestmentLayer = L.geoJson(null);
-var Investments = L.geoJson(null, {
+/* Empty layer placeholder to add to layer control for listening when to add/remove Hospitals to markerClusters layer */
+var protectedLayer = L.geoJson(null);
+var ProtectedAreas = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.icon({
-        iconUrl: "assets/img/Investment.png",
-        iconSize: [24, 28],
+        iconUrl: "assets/img/eco.png",
+        iconSize: [24, 30],
         iconAnchor: [12, 28],
         popupAnchor: [0, -25]
       }),
@@ -428,268 +242,73 @@ var Investments = L.geoJson(null, {
   },
   onEachFeature: function (feature, layer) {
     if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.NAME + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.ADDRESS + "</td></tr>" + "<table>";
+      var content = "<table class='table table-striped table-bordered table-condensed'>" 
+                    + "<tr><th>Name</th><td>" + feature.properties.NAME + "</td></tr>" 
+                    + "<tr><th>Layer</th><td>" + feature.properties.LAYER + "</td></tr>" 
+                    + "<tr><th>Perimeter</th><td>" + feature.properties.PERIMETER + "</td></tr>" 
+                    + "<tr><th>Enclosed Area</th><td>" + "<b>" +feature.properties.ENCLOSED_A +"</b></td></tr>" 
+                    + "<table>";
       layer.on({
         click: function (e) {
           $("#feature-title").html(feature.properties.NAME);
           $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
+          $("#featureModal").modal("show"); 
+          highlight.clearLayers().addLayer(L.circleMarker([layer.getBounds().getCenter().lat, layer.getBounds().getCenter().lng], highlightStyle));
         }
       });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Investment.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Investmentsearch.push({
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/eco.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Protectedareasearch.push({
         name: layer.feature.properties.NAME,
-        address: layer.feature.properties.ADDRESS,
-        source: "Investments",
+        address: layer.feature.properties.LAYER,
+        source: "ProtectedAreas",
         id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
+        lat: layer.getBounds().getCenter().lat,
+        lng: layer.getBounds().getCenter().lng
       });
     }
   }
 });
-$.getJSON("geojson_tarlac/tarlac_investments.geojson", function (data) {
-  Investments.addData(data);
+$.getJSON("json/Bohol_Panglao.geojson", function (data) {
+  ProtectedAreas.addData(data);
+  map.addLayer(protectedLayer);
 });
 
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var HotelLayer = L.geoJson(null);
-var Hotels = L.geoJson(null, {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.icon({
-        iconUrl: "assets/img/Hotel.png",
-        iconSize: [24, 28],
-        iconAnchor: [12, 28],
-        popupAnchor: [0, -25]
-      }),
-      title: feature.properties.name,
-      riseOnHover: true
-    });
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.name + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.name);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
-        }
-      });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Hotel.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Hotelsearch.push({
-        name: layer.feature.properties.name,
-        address: layer.feature.properties.type,
-        source: "Hotels",
-        id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_hotels.geojson", function (data) {
-  Hotels.addData(data);
-});
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var ChurchLayer = L.geoJson(null);
-var Churches = L.geoJson(null, {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.icon({
-        iconUrl: "assets/img/Church.png",
-        iconSize: [24, 28],
-        iconAnchor: [12, 28],
-        popupAnchor: [0, -25]
-      }),
-      title: feature.properties.name,
-      riseOnHover: true
-    });
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.name + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.name);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
-        }
-      });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Church.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Churchsearch.push({
-        name: layer.feature.properties.name,
-        address: layer.feature.properties.type,
-        source: "Churches",
-        id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_churches.geojson", function (data) {
-  Churches.addData(data);
-});
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var PoliceLayer = L.geoJson(null);
-var Polices = L.geoJson(null, {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.icon({
-        iconUrl: "assets/img/Police.png",
-        iconSize: [24, 28],
-        iconAnchor: [12, 28],
-        popupAnchor: [0, -25]
-      }),
-      title: feature.properties.name,
-      riseOnHover: true
-    });
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.name + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.name);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
-        }
-      });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Church.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Policesearch.push({
-        name: layer.feature.properties.name,
-        address: layer.feature.properties.type,
-        source: "Polices",
-        id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_police.geojson", function (data) {
-  Polices.addData(data);
-});
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Investments to markerClusters layer */
-var RestaurantLayer = L.geoJson(null);
-var Restaurants = L.geoJson(null, {
-  pointToLayer: function (feature, latlng) {
-    return L.marker(latlng, {
-      icon: L.icon({
-        iconUrl: "assets/img/Restaurant.png",
-        iconSize: [24, 28],
-        iconAnchor: [12, 28],
-        popupAnchor: [0, -25]
-      }),
-      title: feature.properties.name,
-      riseOnHover: true
-    });
-  },
-  onEachFeature: function (feature, layer) {
-    if (feature.properties) {
-      var content = "<table class='table table-striped table-bordered table-condensed'>" + "<tr><th>Name</th><td>" + feature.properties.name + "</td></tr>" + "<tr><th>Type</th><td>" + feature.properties.type + "</td></tr>" + "<table>";
-      layer.on({
-        click: function (e) {
-          $("#feature-title").html(feature.properties.name);
-          $("#feature-info").html(content);
-          $("#featureModal").modal("show");
-          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
-        }
-      });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/Church.png"></td><td class="feature-name">' + layer.feature.properties.name + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Restaurantsearch.push({
-        name: layer.feature.properties.name,
-        address: layer.feature.properties.type,
-        source: "Restaurants",
-        id: L.stamp(layer),
-        lat: layer.feature.geometry.coordinates[1],
-        lng: layer.feature.geometry.coordinates[0]
-      });
-    }
-  }
-});
-$.getJSON("geojson_tarlac/tarlac_restaurant.geojson", function (data) {
-  Restaurants.addData(data);
-});
-
+var orthoPhoto = L.imageOverlay(imageUrl, imageBounds);
 
 map = L.map("map", {
   zoom: 10,
   center: [15.48889, 120.5986],
-  layers: [Boundaries, HereDay],//[mapquestHYB, Boundaries, markerClusters, highlight],
+  layers: [orthoPhoto, Boundaries, HereDay, markerClusters, highlight],//[mapquestHYB, Boundaries, markerClusters, highlight],
   zoomControl: false,
-  attributionControl: false
+  attributionControl: false,
+  maxZoom:20
 });
+
+map.fitBounds(imageBounds);
+
+
+
+
 
 /* Layer control listeners that allow for a single markerClusters layer */
 map.on("overlayadd", function(e) {
-    if (e.layer === BusLayer) {
-    markerClusters.addLayer(Buses);
+  if (e.layer === treeLayer) {
+    markerClusters.addLayer(Trees);
     syncSidebar();
   }
-  if (e.layer === hospitalLayer) {
-    markerClusters.addLayer(Hospitals);
-    syncSidebar();
-  }
-  if (e.layer === InvestmentLayer) {
-    markerClusters.addLayer(Investments);
-    syncSidebar();
-  }
-  if (e.layer === HotelLayer) {
-    markerClusters.addLayer(Hotels);
-    syncSidebar();
-  }
-  if (e.layer === ChurchLayer) {
-    markerClusters.addLayer(Churches);
-    syncSidebar();
-  }
-  if (e.layer === PoliceLayer) {
-    markerClusters.addLayer(Polices);
-    syncSidebar();
-  }
-  if (e.layer === RestaurantLayer) {
-    markerClusters.addLayer(Restaurants);
+  if (e.layer === protectedLayer) {
+    markerClusters.addLayer(ProtectedAreas);
     syncSidebar();
   }
 });
 
 map.on("overlayremove", function(e) {
-  if (e.layer === hospitalLayer) {
-    markerClusters.removeLayer(Hospitals);
+  if (e.layer === treeLayer) {
+    markerClusters.removeLayer(Trees);
     syncSidebar();
   }
-  if (e.layer === InvestmentLayer) {
-    markerClusters.removeLayer(Investments);
-    syncSidebar();
-  }
-  if (e.layer === BusLayer) {
-    markerClusters.removeLayer(Buses);
-    syncSidebar();
-  }
-  if (e.layer === HotelLayer) {
-    markerClusters.removeLayer(Hotels);
-    syncSidebar();
-  }
-  if (e.layer === ChurchLayer) {
-    markerClusters.removeLayer(Churches);
-    syncSidebar();
-  }
-  if (e.layer === PoliceLayer) {
-    markerClusters.removeLayer(Polices);
-    syncSidebar();
-  }
-if (e.layer === RestaurantLayer) {
-    markerClusters.removeLayer(Restaurants);
+  if (e.layer === protectedLayer) {
+    markerClusters.removeLayer(ProtectedAreas);
     syncSidebar();
   }
 });
@@ -777,7 +396,10 @@ var baseLayers = {
 var groupedOverlays = {
   "Reference": {
     "Boundaries": Boundaries,
-    "Protected Areas": Protected 
+    "Protected Areas": protectedLayer 
+  },
+  "Overlays":{
+    "Monitored Trees": treeLayer
   }
 };
 
@@ -820,75 +442,26 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
 
-  var HospitalsBH = new Bloodhound({
-    name: "Hospitals",
+  var TreesBH = new Bloodhound({
+    name: "Trees",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Hospitalsearch,
+    local: Treesearch,
     limit: 10
   });
 
-  var InvestmentsBH = new Bloodhound({
-    name: "Investments",
+    var ProtectedAreasBH = new Bloodhound({
+    name: "ProtectedAreas",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Investmentsearch,
+    local: Protectedareasearch,
     limit: 10
   });
 
-  var BusesBH = new Bloodhound({
-    name: "Buses",
-    datumTokenizer: function (d) {
-      return Bloodhound.tokenizers.whitespace(d.name);
-    },
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Bussearch,
-    limit: 10
-  });
-
-  var HotelsBH = new Bloodhound({
-    name: "Hotels",
-    datumTokenizer: function (d) {
-      return Bloodhound.tokenizers.whitespace(d.name);
-    },
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Hotelsearch,
-    limit: 10
-  });
-
-  var ChurchesBH = new Bloodhound({
-    name: "Churches",
-    datumTokenizer: function (d) {
-      return Bloodhound.tokenizers.whitespace(d.name);
-    },
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Churchsearch,
-    limit: 10
-  });
-
-  var PoliceBH = new Bloodhound({
-    name: "Police Stations",
-    datumTokenizer: function (d) {
-      return Bloodhound.tokenizers.whitespace(d.name);
-    },
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Policesearch,
-    limit: 10
-  });
-
-  var RestaurantBH = new Bloodhound({
-    name: "Restaurants",
-    datumTokenizer: function (d) {
-      return Bloodhound.tokenizers.whitespace(d.name);
-    },
-    queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Restaurantsearch,
-    limit: 10
-  });
 
   var geonamesBH = new Bloodhound({
     name: "GeoNames",
@@ -921,13 +494,8 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
   BoundariesBH.initialize();
-  HospitalsBH.initialize();
-  InvestmentsBH.initialize();
-  BusesBH.initialize();
-  HotelsBH.initialize();
-  ChurchesBH.initialize();
-  PoliceBH.initialize();
-  RestaurantBH.initialize();
+  TreesBH.initialize();
+  ProtectedAreasBH.initialize();
   geonamesBH.initialize();
 
   /* instantiate the typeahead UI */
@@ -943,59 +511,19 @@ $(document).one("ajaxStop", function () {
       header: "<h4 class='typeahead-header'>Boundaries</h4>"
     }
   }, {
-    name: "Hospitals",
+    name: "Trees",
     displayKey: "name",
-    source: HospitalsBH.ttAdapter(),
+    source: TreesBH.ttAdapter(),
     templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/hospital.png' width='24' height='28'>&nbsp;Hospitals</h4>",
+      header: "<h4 class='typeahead-header'><img src='assets/img/TreeIcon.png' width='24' height='28'>&nbsp;Monitored Trees</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   }, {
-    name: "Investments",
+    name: "ProtectedAreas",
     displayKey: "name",
-    source: InvestmentsBH.ttAdapter(),
+    source: ProtectedAreasBH.ttAdapter(),
     templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Investment.png' width='24' height='28'>&nbsp;Investments</h4>",
-      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
-    }
-  },{
-    name: "Buses",
-    displayKey: "name",
-    source: BusesBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Bus.png' width='24' height='28'>&nbsp;Buses</h4>",
-      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
-    }
-  },{
-    name: "Hotels",
-    displayKey: "name",
-    source: HotelsBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Hotel.png' width='24' height='28'>&nbsp;Hotels</h4>",
-      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
-    }
-  },{
-    name: "Churches",
-    displayKey: "name",
-    source: ChurchesBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Church.png' width='24' height='28'>&nbsp;Churches</h4>",
-      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
-    }
-  },{
-    name: "Polices",
-    displayKey: "name",
-    source: PoliceBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Police.png' width='24' height='28'>&nbsp;Polices</h4>",
-      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
-    }
-  },{
-    name: "Restaurants",
-    displayKey: "name",
-    source: RestaurantBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/Restaurant.png' width='24' height='28'>&nbsp;Restaurants</h4>",
+      header: "<h4 class='typeahead-header'><img src='assets/img/eco.png' width='24' height='28'>&nbsp;Protected Areas</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   },{
@@ -1009,63 +537,18 @@ $(document).one("ajaxStop", function () {
     if (datum.source === "Boundaries") {
       map.fitBounds(datum.bounds);
     }
-    if (datum.source === "Hospitals") {
-      if (!map.hasLayer(hospitalLayer)) {
-        map.addLayer(hospitalLayer);
+    if (datum.source === "Trees") {
+      if (!map.hasLayer(treeLayer)) {
+        map.addLayer(treeLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
         map._layers[datum.id].fire("click");
       }
     }
-    if (datum.source === "Investments") {
-      if (!map.hasLayer(InvestmentLayer)) {
-        map.addLayer(InvestmentLayer);
-      }
-      map.setView([datum.lat, datum.lng], 17);
-      if (map._layers[datum.id]) {
-        map._layers[datum.id].fire("click");
-      }
-    }
-    if (datum.source === "Buses") {
-      if (!map.hasLayer(BusLayer)) {
-        map.addLayer(BusLayer);
-      }
-      map.setView([datum.lat, datum.lng], 17);
-      if (map._layers[datum.id]) {
-        map._layers[datum.id].fire("click");
-      }
-    }
-    if (datum.source === "Hotels") {
-      if (!map.hasLayer(HotelLayer)) {
-        map.addLayer(HotelLayer);
-      }
-      map.setView([datum.lat, datum.lng], 17);
-      if (map._layers[datum.id]) {
-        map._layers[datum.id].fire("click");
-      }
-    }
-    if (datum.source === "Churches") {
-      if (!map.hasLayer(ChurchLayer)) {
-        map.addLayer(ChurchLayer);
-      }
-      map.setView([datum.lat, datum.lng], 17);
-      if (map._layers[datum.id]) {
-        map._layers[datum.id].fire("click");
-      }
-    }
-    if (datum.source === "Restaurants") {
-      if (!map.hasLayer(RestaurantLayer)) {
-        map.addLayer(RestaurantLayer);
-      }
-      map.setView([datum.lat, datum.lng], 17);
-      if (map._layers[datum.id]) {
-        map._layers[datum.id].fire("click");
-      }
-    }
-    if (datum.source === "Polices") {
-      if (!map.hasLayer(PoliceLayer)) {
-        map.addLayer(PoliceLayer);
+    if (datum.source === "ProtectedAreas") {
+      if (!map.hasLayer(protectedLayer)) {
+        map.addLayer(protectedLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
@@ -1089,21 +572,8 @@ $(document).one("ajaxStop", function () {
   $(".twitter-typeahead").css("display", "block");
 });
 
-var imageUrl = 'ortho/boholJPG3.png',
-    imageBounds = L.latLngBounds([[9.5900527778,123.7387444444], [9.5525694444,123.7651027778]]);
 
 
-/*
-var imageUrl = 'https://farm4.staticflickr.com/3731/14101168818_932d707f90_o.jpg',
-    // This is the trickiest part - you'll need accurate coordinates for the
-    // corners of the image. You can find and create appropriate values at
-    // http://maps.nypl.org/warper/ or
-    // http://www.georeferencer.org/
-    imageBounds = L.latLngBounds([
-        [40.712216, -74.22655],
-        [40.773941, -74.12544]]);
-*/
 
-map.fitBounds(imageBounds);
-L.imageOverlay(imageUrl, imageBounds).addTo(map);
+
 
