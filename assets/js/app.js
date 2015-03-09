@@ -1,4 +1,4 @@
-var map, featureList, Boundariesearch = [], Treesearch = [], Protectedareasearch = [];
+var map, featureList, Boundariesearch = [], Treesearch = [], CropAreasearch = [], Roadsearch = [];
 $(document).on("click", ".feature-row", function(e) {
   $(document).off("mouseout", ".feature-row", clearHighlight);
   sidebarClick(parseInt($(this).attr("id"), 10));
@@ -91,10 +91,10 @@ function syncSidebar() {
   });
 
   /* Loop through Protected Areas layer and add only features which are in the map bounds */
-  ProtectedAreas.eachLayer(function (layer) {
-    if (map.hasLayer(protectedLayer)) {
+  CropAreas.eachLayer(function (layer) {
+    if (map.hasLayer(cropareaLayer)) {
       if (map.getBounds().contains(layer.getBounds().getCenter())){
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/eco.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/cropArea.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
       }
     }
   });
@@ -143,6 +143,24 @@ var highlightStyle = {
   radius: 10
 };
 
+var highArea;
+
+
+
+//var multi = L.multiPolygon(sampleData.features[0].geometry.coordinates[0]);
+
+var highlightArea = L.geoJson(null, {
+  style: function (feature) {
+    return {
+        stroke: true,
+        color:"#9CCC65",
+        fillColor: "#E91E63",
+        fillOpacity: 0.5,
+        weight:1
+    };
+  }
+});
+
 //Bohol Boundaries
 var Boundaries = L.geoJson(null, {
   style: function (feature) {
@@ -165,6 +183,30 @@ var Boundaries = L.geoJson(null, {
 });
 $.getJSON("json/Bohol_Municipality_simplified.geojson",function (data) {
       Boundaries.addData(data);
+  });
+
+//Road Network
+var RoadNetworks = L.geoJson(null, {
+  style: function (feature) {
+    return {
+      color:"#9CCC65",
+      fill: false,
+      opacity: 1,
+      clickable: false,
+      weight: 2
+    };
+  },
+  onEachFeature: function (feature, layer) {
+    Boundariesearch.push({
+      name: layer.feature.properties.NAME,
+      source: "RoadNetworks",
+      id: L.stamp(layer),
+      bounds: layer.getBounds()
+    });
+  }
+});
+$.getJSON("json/Bohol_Panglao_Roads.geojson",function (data) {
+      RoadNetworks.addData(data);
   });
 
 
@@ -212,7 +254,7 @@ var Trees = L.geoJson(null, {
       Treesearch.push({
         name: layer.feature.properties.Id,
         address: layer.feature.properties.Vegetation,
-        source: "Hospitals",
+        source: "Trees",
         id: L.stamp(layer),
         lat: layer.feature.geometry.coordinates[1],
         lng: layer.feature.geometry.coordinates[0]
@@ -225,13 +267,15 @@ $.getJSON("json/Monitored_Trees.geojson", function (data) {
   map.addLayer(treeLayer);
 });
 
+
+
 /* Empty layer placeholder to add to layer control for listening when to add/remove Hospitals to markerClusters layer */
-var protectedLayer = L.geoJson(null);
-var ProtectedAreas = L.geoJson(null, {
+var cropareaLayer = L.geoJson(null);
+var CropAreas = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.icon({
-        iconUrl: "assets/img/eco.png",
+        iconUrl: "assets/img/cropArea.png",
         iconSize: [24, 30],
         iconAnchor: [12, 28],
         popupAnchor: [0, -25]
@@ -253,14 +297,34 @@ var ProtectedAreas = L.geoJson(null, {
           $("#feature-title").html(feature.properties.NAME);
           $("#feature-info").html(content);
           $("#featureModal").modal("show"); 
+          
+          highlightArea.clearLayers();
+
+          var sampleData = {
+                "type": "FeatureCollection",
+                    "features": [ {
+                    "type": "Feature",
+                        "properties": {
+                        "fillColor": "red"
+                    },
+                        "geometry": {
+                        "type": "MultiPolygon",
+                        "coordinates": layer.feature.geometry.coordinates
+                    }
+                }]
+            };
+
+          highlightArea.addData(sampleData);
+
           highlight.clearLayers().addLayer(L.circleMarker([layer.getBounds().getCenter().lat, layer.getBounds().getCenter().lng], highlightStyle));
+
         }
       });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/eco.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Protectedareasearch.push({
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/cropArea.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      CropAreasearch.push({
         name: layer.feature.properties.NAME,
         address: layer.feature.properties.LAYER,
-        source: "ProtectedAreas",
+        source: "CropAreas",
         id: L.stamp(layer),
         lat: layer.getBounds().getCenter().lat,
         lng: layer.getBounds().getCenter().lng
@@ -269,8 +333,8 @@ var ProtectedAreas = L.geoJson(null, {
   }
 });
 $.getJSON("json/Bohol_Panglao.geojson", function (data) {
-  ProtectedAreas.addData(data);
-  map.addLayer(protectedLayer);
+  CropAreas.addData(data);
+  map.addLayer(cropareaLayer);
 });
 
 var orthoPhoto = L.imageOverlay(imageUrl, imageBounds);
@@ -278,7 +342,7 @@ var orthoPhoto = L.imageOverlay(imageUrl, imageBounds);
 map = L.map("map", {
   zoom: 10,
   center: [15.48889, 120.5986],
-  layers: [orthoPhoto, Boundaries, HereDay, markerClusters, highlight],//[mapquestHYB, Boundaries, markerClusters, highlight],
+  layers: [orthoPhoto, Boundaries, HereDay, markerClusters, highlightArea, highlight],//[mapquestHYB, Boundaries, markerClusters, highlight],
   zoomControl: false,
   attributionControl: false,
   maxZoom:20
@@ -286,18 +350,14 @@ map = L.map("map", {
 
 map.fitBounds(imageBounds);
 
-
-
-
-
 /* Layer control listeners that allow for a single markerClusters layer */
 map.on("overlayadd", function(e) {
   if (e.layer === treeLayer) {
     markerClusters.addLayer(Trees);
     syncSidebar();
   }
-  if (e.layer === protectedLayer) {
-    markerClusters.addLayer(ProtectedAreas);
+  if (e.layer === cropareaLayer) {
+    markerClusters.addLayer(CropAreas);
     syncSidebar();
   }
 });
@@ -307,8 +367,8 @@ map.on("overlayremove", function(e) {
     markerClusters.removeLayer(Trees);
     syncSidebar();
   }
-  if (e.layer === protectedLayer) {
-    markerClusters.removeLayer(ProtectedAreas);
+  if (e.layer === cropareaLayer) {
+    markerClusters.removeLayer(CropAreas);
     syncSidebar();
   }
 });
@@ -396,10 +456,11 @@ var baseLayers = {
 var groupedOverlays = {
   "Reference": {
     "Boundaries": Boundaries,
-    "Protected Areas": protectedLayer 
+    "Road Network": RoadNetworks
   },
   "Overlays":{
-    "Monitored Trees": treeLayer
+    "Monitored Trees": treeLayer,
+    "Crop Areas": cropareaLayer 
   }
 };
 
@@ -442,6 +503,16 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
 
+    var RoadNetworksBH = new Bloodhound({
+    name: "RoadNetworks",
+    datumTokenizer: function (d) {
+      return Bloodhound.tokenizers.whitespace(d.name);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: Roadsearch,
+    limit: 10
+  });
+
   var TreesBH = new Bloodhound({
     name: "Trees",
     datumTokenizer: function (d) {
@@ -452,13 +523,13 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
 
-    var ProtectedAreasBH = new Bloodhound({
-    name: "ProtectedAreas",
+    var CropAreasBH = new Bloodhound({
+    name: "CropAreas",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Protectedareasearch,
+    local: CropAreasearch,
     limit: 10
   });
 
@@ -494,8 +565,9 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
   BoundariesBH.initialize();
+  RoadNetworksBH.initialize();
   TreesBH.initialize();
-  ProtectedAreasBH.initialize();
+  CropAreasBH.initialize();
   geonamesBH.initialize();
 
   /* instantiate the typeahead UI */
@@ -510,6 +582,13 @@ $(document).one("ajaxStop", function () {
     templates: {
       header: "<h4 class='typeahead-header'>Boundaries</h4>"
     }
+  },{
+    name: "RoadNetworks",
+    displayKey: "name",
+    source: RoadNetworksBH.ttAdapter(),
+    templates: {
+      header: "<h4 class='typeahead-header'>Road Networks</h4>"
+    }
   }, {
     name: "Trees",
     displayKey: "name",
@@ -519,11 +598,11 @@ $(document).one("ajaxStop", function () {
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   }, {
-    name: "ProtectedAreas",
+    name: "CropAreas",
     displayKey: "name",
-    source: ProtectedAreasBH.ttAdapter(),
+    source: CropAreasBH.ttAdapter(),
     templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/eco.png' width='24' height='28'>&nbsp;Protected Areas</h4>",
+      header: "<h4 class='typeahead-header'><img src='assets/img/cropArea.png' width='24' height='28'>&nbsp;Crop Areas</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   },{
@@ -537,6 +616,9 @@ $(document).one("ajaxStop", function () {
     if (datum.source === "Boundaries") {
       map.fitBounds(datum.bounds);
     }
+    if (datum.source === "RoadNetworks") {
+      map.fitBounds(datum.bounds);
+    }
     if (datum.source === "Trees") {
       if (!map.hasLayer(treeLayer)) {
         map.addLayer(treeLayer);
@@ -546,9 +628,9 @@ $(document).one("ajaxStop", function () {
         map._layers[datum.id].fire("click");
       }
     }
-    if (datum.source === "ProtectedAreas") {
-      if (!map.hasLayer(protectedLayer)) {
-        map.addLayer(protectedLayer);
+    if (datum.source === "CropAreas") {
+      if (!map.hasLayer(cropareaLayer)) {
+        map.addLayer(cropareaLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
