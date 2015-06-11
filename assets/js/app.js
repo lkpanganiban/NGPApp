@@ -937,6 +937,27 @@ $(document).one("ajaxStop", function () {
   $(".twitter-typeahead").css("display", "block");
 });
 
+//legend
+var legend = L.control({position: 'bottomleft'});
+
+legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend'),
+        counts = [324, 174, 174, 500, 349],
+        labels = ["Missing","Replanted","Growing","Seedling","Total"];
+        imgs=["\'assets/img/miss.png\'", "\'assets/img/newlyReplant.png\'", "\'assets/img/grow.png\'", "\'assets/img/seeds.png\'", "\'assets/img/total.png\'"];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
+    for (var i = 0; i < counts.length; i++) {
+        div.innerHTML += "<span><img src="+imgs[i]+"/><p>"+labels[i]+" : <b>"+counts[i]+"</b></p></span>"
+            
+    }
+
+    return div;
+};
+
+legend.addTo(map);
+
 
 
 

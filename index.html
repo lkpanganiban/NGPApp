@@ -25,6 +25,24 @@
     <link rel="apple-touch-icon" sizes="152x152" href="assets/img/favicon-152.png">
     <link rel="icon" sizes="196x196" href="assets/img/favicon-196.png">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <style>
+    .legend {
+      line-height: 18px;
+      color: #555;
+      bottom:5em;
+      background-color: white;
+      padding: 1em;
+      border-radius: 2em;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.7;
+    }
+  </style>
   </head>
 
   <body>
@@ -95,8 +113,17 @@
         </div>
       </div>
       <button type="button" class="btn btn-default" id="list-btn" style="z-index:1000;"><i class="fa fa-bars"></i></button>
-
+<!--             <div id='legend'>
+        <strong>The Title or Explanation of your Map</strong>
+        <nav class='legend clearfix'>
+          <span><img src="assets/img/miss.png"/><h4>Missing:</h4><b><h4 id="miss_l"></h4></b></span>
+          <span><img src="assets/img/grow.png"/><h4>Growing:</h4><b><h4 id="grow_l"></h4></b></span>
+          <span><img src="assets/img/newlyReplant.png"/><h4>Replanted:</h4><b><h4 id="new_l"></h4></b></span>
+          <span><img src="assets/img/seeds.png"/><h4>Seedling:</h4><b><h4 id="seed_l"></h4></b></span>
+          <span><img src="assets/img/total.png"/><h4>Total Count:</h4><b><h4 id="total_l"></h4></b></span>
+      </div> -->
       <div id="map"></div>
+
     </div>
 
     <div id="loading">
