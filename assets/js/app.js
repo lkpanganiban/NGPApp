@@ -1,4 +1,5 @@
-var map, featureList, Boundariesearch = [], Treesearch = [], CropAreasearch = [], Roadsearch = [];
+//Change 1
+var map, featureList, Boundariesearch = [] ,Missingsearch=[],Growingsearch=[],Replantsearch=[],Totalsearch=[], Seedlingsearch=[];
 $(document).on("click", ".feature-row", function(e) {
   $(document).off("mouseout", ".feature-row", clearHighlight);
   sidebarClick(parseInt($(this).attr("id"), 10));
@@ -82,22 +83,54 @@ function syncSidebar() {
   $("#feature-list tbody").empty();
 
   /* Loop through Monitored Tree layer and add only features which are in the map bounds */
-  Trees.eachLayer(function (layer) {
-    if (map.hasLayer(treeLayer)) {
+  rizalMissingPlants.eachLayer(function (layer) {
+    if (map.hasLayer(rizalMissingPlantsLayer)) {
       if (map.getBounds().contains(layer.getLatLng())){
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/TreeIcon.png"></td><td class="feature-name">' + layer.feature.properties.Id + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/miss.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
       }
     }
   });
 
-  /* Loop through Protected Areas layer and add only features which are in the map bounds */
-  CropAreas.eachLayer(function (layer) {
-    if (map.hasLayer(cropareaLayer)) {
-      if (map.getBounds().contains(layer.getBounds().getCenter())){
-        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/cropArea.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+  rizalGrowingPlants.eachLayer(function (layer) {
+    if (map.hasLayer(rizalGrowingPlantsLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/grow.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
       }
     }
   });
+
+  rizalNewPlants.eachLayer(function (layer) {
+    if (map.hasLayer(rizalNewPlantsLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/newlyReplant.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      }
+    }
+  });
+
+  rizalSeedlingPlants.eachLayer(function (layer) {
+    if (map.hasLayer(rizalSeedlingPlantsLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/seeds.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      }
+    }
+  });
+
+  rizalTotalPlants.eachLayer(function (layer) {
+    if (map.hasLayer(rizalTotalPlantsLayer)) {
+      if (map.getBounds().contains(layer.getLatLng())){
+        $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/total.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      }
+    }
+  });
+
+  // /* Loop through Protected Areas layer and add only features which are in the map bounds */
+  // CropAreas.eachLayer(function (layer) {
+  //   if (map.hasLayer(cropareaLayer)) {
+  //     if (map.getBounds().contains(layer.getBounds().getCenter())){
+  //       $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/cropArea.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+  //     }
+  //   }
+  // });
 
 
   /* Update list.js featureList */
@@ -131,8 +164,9 @@ var HereDay = L.tileLayer('http://{s}.{base}.maps.cit.api.here.com/maptile/2.1/m
   maxZoom: 20
 });
 
-var imageUrl = 'ortho/boholJPG3.png',
-    imageBounds = L.latLngBounds([[9.5900527778,123.7387444444], [9.5525694444,123.7651027778]]);
+// var imageUrl = 'ortho/boholJPG3.png',
+//     imageBounds = L.latLngBounds([[9.5900527778,123.7387444444], [9.5525694444,123.7651027778]]);
+// var orthoPhoto = L.imageOverlay(imageUrl, imageBounds);
 
 /* Overlay Layers */
 var highlight = L.geoJson(null);
@@ -144,7 +178,6 @@ var highlightStyle = {
 };
 
 var highArea;
-
 
 
 //var multi = L.multiPolygon(sampleData.features[0].geometry.coordinates[0]);
@@ -185,31 +218,6 @@ $.getJSON("json/Bohol_Municipality_simplified.geojson",function (data) {
       Boundaries.addData(data);
   });
 
-//Road Network
-var RoadNetworks = L.geoJson(null, {
-  style: function (feature) {
-    return {
-      color:"#9CCC65",
-      fill: false,
-      opacity: 1,
-      clickable: false,
-      weight: 2
-    };
-  },
-  onEachFeature: function (feature, layer) {
-    Boundariesearch.push({
-      name: layer.feature.properties.NAME,
-      source: "RoadNetworks",
-      id: L.stamp(layer),
-      bounds: layer.getBounds()
-    });
-  }
-});
-$.getJSON("json/Bohol_Panglao_Roads.geojson",function (data) {
-      RoadNetworks.addData(data);
-  });
-
-
 /* Single marker cluster layer to hold all clusters */
 var markerClusters = new L.MarkerClusterGroup({
   spiderfyOnMaxZoom: true,
@@ -218,15 +226,46 @@ var markerClusters = new L.MarkerClusterGroup({
   disableClusteringAtZoom: 19
 });
 
-/* Empty layer placeholder to add to layer control for listening when to add/remove Hospitals to markerClusters layer */
-var treeLayer = L.geoJson(null);
-var Trees = L.geoJson(null, {
+//---------------------------------------------------------- Rizal Data ----------------------------------------------------------------------
+// Rizal Boundaries
+var rizalBoundaries = L.geoJson(null, {
+  style: function (feature) {
+    return {
+      color:"#FFB300",
+      fill: false,
+      opacity: 1,
+      clickable: false,
+      weight: 2
+    };
+  },
+  onEachFeature: function (feature, layer) {
+    Boundariesearch.push({
+      name: layer.feature.properties.CITY_NAME,
+      source: "Boundaries",
+      id: L.stamp(layer),
+      bounds: layer.getBounds()
+    });
+  }
+});
+$.getJSON("json/rizal_admin_bds.geojson",function (data) {
+      rizalBoundaries.addData(data);
+  });
+
+// Rizal Ortho
+var rizalImageUrl = 'ortho/RizalClip11.jpg',
+    rizalImageBounds = L.latLngBounds([[14.6976688978895,121.233116047712],[14.6983404070102,121.233726468209]]);
+
+var rizalOrthoPhoto = L.imageOverlay(rizalImageUrl, rizalImageBounds);
+
+// Missing Trees
+var rizalMissingPlantsLayer = L.geoJson(null);
+var rizalMissingPlants = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.icon({
-        iconUrl: "assets/img/TreeIcon.png",
-        iconSize: [24, 30],
-        iconAnchor: [12, 28],
+        iconUrl: "assets/img/miss.png",
+        iconSize: [15,15],
+        iconAnchor: [1, 1],
         popupAnchor: [0, -25]
       }),
       title: feature.properties.Id,
@@ -236,25 +275,24 @@ var Trees = L.geoJson(null, {
   onEachFeature: function (feature, layer) {
     if (feature.properties) {
       var content = "<table class='table table-striped table-bordered table-condensed'>" 
-                    + "<tr><th>Id</th><td>" + feature.properties.Id + "</td></tr>" 
-                    + "<tr><th>Vegetation</th><td>" + feature.properties.Vegetation + "</td></tr>" 
-                    + "<tr><th>Seedlings</th><td>" + feature.properties.Seedlings + "</td></tr>" 
-                    + "<tr><th>Crop Age</th><td>" + "<b>" +feature.properties.MonthsOld +"</b></td></tr>" 
-                    + "<tr><th>Harvest Date</th><td>" + "<b>" +feature.properties.Harvest_da +"</b></td></tr>" 
-                    + "<table>";
+                    + "<tr><th>Geocode</th><td>" + feature.properties.Geocode + "</td></tr>" 
+                    + "<tr><th>Region</th><td>" + feature.properties.Region + "</td></tr>" 
+                    + "<tr><th>Species</th><td>" + feature.properties.Species + "</td></tr>" 
+                    + "<tr><th>Date Planted</th><td>" + "<b>" +feature.properties.DatePlante +"</b></td></tr><table>";
       layer.on({
         click: function (e) {
-          $("#feature-title").html(feature.properties.Id);
+          $("#feature-title").html(feature.properties.Geocode);
           $("#feature-info").html(content);
           $("#featureModal").modal("show"); 
           highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
         }
       });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/TreeIcon.png"></td><td class="feature-name">' + layer.feature.properties.Id + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      Treesearch.push({
-        name: layer.feature.properties.Id,
-        address: layer.feature.properties.Vegetation,
-        source: "Trees",
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/miss.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      
+        Missingsearch.push({
+        name: layer.feature.properties.Geocode,
+        address: layer.feature.properties.Region,
+        source: "rizalMissingPlants",
         id: L.stamp(layer),
         lat: layer.feature.geometry.coordinates[1],
         lng: layer.feature.geometry.coordinates[0]
@@ -262,115 +300,261 @@ var Trees = L.geoJson(null, {
     }
   }
 });
-$.getJSON("json/Monitored_Trees.geojson", function (data) {
-  Trees.addData(data);
-  map.addLayer(treeLayer);
+$.getJSON("json/rizal_missing_plants.geojson", function (data) {
+  rizalMissingPlants.addData(data);
+  map.addLayer(rizalMissingPlantsLayer);
 });
 
 
-
-/* Empty layer placeholder to add to layer control for listening when to add/remove Hospitals to markerClusters layer */
-var cropareaLayer = L.geoJson(null);
-var CropAreas = L.geoJson(null, {
+// Growing Plants
+var rizalGrowingPlantsLayer = L.geoJson(null);
+var rizalGrowingPlants = L.geoJson(null, {
   pointToLayer: function (feature, latlng) {
     return L.marker(latlng, {
       icon: L.icon({
-        iconUrl: "assets/img/cropArea.png",
-        iconSize: [24, 30],
-        iconAnchor: [12, 28],
+        iconUrl: "assets/img/grow.png",
+        iconSize: [15,15],
+        iconAnchor: [1, 1],
         popupAnchor: [0, -25]
       }),
-      title: feature.properties.NAME,
+      title: feature.properties.Geocode,
       riseOnHover: true
     });
   },
   onEachFeature: function (feature, layer) {
     if (feature.properties) {
       var content = "<table class='table table-striped table-bordered table-condensed'>" 
-                    + "<tr><th>Name</th><td>" + feature.properties.NAME + "</td></tr>" 
-                    + "<tr><th>Layer</th><td>" + feature.properties.LAYER + "</td></tr>" 
-                    + "<tr><th>Perimeter</th><td>" + feature.properties.PERIMETER + "</td></tr>" 
-                    + "<tr><th>Enclosed Area</th><td>" + "<b>" +feature.properties.ENCLOSED_A +"</b></td></tr>" 
-                    + "<table>";
+                    + "<tr><th>Geocode</th><td>" + feature.properties.Geocode + "</td></tr>" 
+                    + "<tr><th>Region</th><td>" + feature.properties.Region + "</td></tr>" 
+                    + "<tr><th>Species</th><td>" + feature.properties.Species + "</td></tr>" 
+                    + "<tr><th>Date Planted</th><td>" + "<b>" +feature.properties.DatePlante +"</b></td></tr><table>";
       layer.on({
         click: function (e) {
-          $("#feature-title").html(feature.properties.NAME);
+          $("#feature-title").html(feature.properties.Geocode);
           $("#feature-info").html(content);
           $("#featureModal").modal("show"); 
-          
-          highlightArea.clearLayers();
-
-          var sampleData = {
-                "type": "FeatureCollection",
-                    "features": [ {
-                    "type": "Feature",
-                        "properties": {
-                        "fillColor": "red"
-                    },
-                        "geometry": {
-                        "type": "MultiPolygon",
-                        "coordinates": layer.feature.geometry.coordinates
-                    }
-                }]
-            };
-
-          highlightArea.addData(sampleData);
-
-          highlight.clearLayers().addLayer(L.circleMarker([layer.getBounds().getCenter().lat, layer.getBounds().getCenter().lng], highlightStyle));
-
+          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
         }
       });
-      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getBounds().getCenter().lat + '" lng="' + layer.getBounds().getCenter().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/cropArea.png"></td><td class="feature-name">' + layer.feature.properties.NAME + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
-      CropAreasearch.push({
-        name: layer.feature.properties.NAME,
-        address: layer.feature.properties.LAYER,
-        source: "CropAreas",
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/grow.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Growingsearch.push({
+        name: layer.feature.properties.Geocode,
+        address: layer.feature.properties.Region,
+        source: "rizalGrowingPlants",
         id: L.stamp(layer),
-        lat: layer.getBounds().getCenter().lat,
-        lng: layer.getBounds().getCenter().lng
+        lat: layer.feature.geometry.coordinates[1],
+        lng: layer.feature.geometry.coordinates[0]
       });
     }
   }
 });
-$.getJSON("json/Bohol_Panglao.geojson", function (data) {
-  CropAreas.addData(data);
-  map.addLayer(cropareaLayer);
+$.getJSON("json/rizal_growing_plants.geojson", function (data) {
+  rizalGrowingPlants.addData(data);
+  map.addLayer(rizalGrowingPlantsLayer);
 });
 
-var orthoPhoto = L.imageOverlay(imageUrl, imageBounds);
 
+// New Plants
+var rizalNewPlantsLayer = L.geoJson(null);
+var rizalNewPlants = L.geoJson(null, {
+  pointToLayer: function (feature, latlng) {
+    return L.marker(latlng, {
+      icon: L.icon({
+        iconUrl: "assets/img/newlyReplant.png",
+        iconSize: [15,15],
+        iconAnchor: [1, 1],
+        popupAnchor: [0, -25]
+      }),
+      title: feature.properties.Geocode,
+      riseOnHover: true
+    });
+  },
+  onEachFeature: function (feature, layer) {
+    if (feature.properties) {
+      var content = "<table class='table table-striped table-bordered table-condensed'>" 
+                    + "<tr><th>Geocode</th><td>" + feature.properties.Geocode + "</td></tr>" 
+                    + "<tr><th>Region</th><td>" + feature.properties.Region + "</td></tr>" 
+                    + "<tr><th>Species</th><td>" + feature.properties.Species + "</td></tr>" 
+                    + "<tr><th>Date Planted</th><td>" + "<b>" +feature.properties.DatePlante +"</b></td></tr><table>";
+      layer.on({
+        click: function (e) {
+          $("#feature-title").html(feature.properties.Geocode);
+          $("#feature-info").html(content);
+          $("#featureModal").modal("show"); 
+          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
+        }
+      });
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/newlyReplant.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Replantsearch.push({
+        name: layer.feature.properties.Geocode,
+        address: layer.feature.properties.Region,
+        source: "rizalNewPlants",
+        id: L.stamp(layer),
+        lat: layer.feature.geometry.coordinates[1],
+        lng: layer.feature.geometry.coordinates[0]
+      });
+    }
+  }
+});
+$.getJSON("json/rizal_new_plants.geojson", function (data) {
+  rizalNewPlants.addData(data);
+  map.addLayer(rizalNewPlantsLayer);
+});
+
+
+// Seedling Plants
+var rizalSeedlingPlantsLayer = L.geoJson(null);
+var rizalSeedlingPlants = L.geoJson(null, {
+  pointToLayer: function (feature, latlng) {
+    return L.marker(latlng, {
+      icon: L.icon({
+        iconUrl: "assets/img/seeds.png",
+        iconSize: [15,15],
+        iconAnchor: [1, 1],
+        popupAnchor: [0, -25]
+      }),
+      title: feature.properties.Geocode,
+      riseOnHover: true
+    });
+  },
+  onEachFeature: function (feature, layer) {
+    if (feature.properties) {
+      var content = "<table class='table table-striped table-bordered table-condensed'>" 
+                    + "<tr><th>Geocode</th><td>" + feature.properties.Geocode + "</td></tr>" 
+                    + "<tr><th>Region</th><td>" + feature.properties.Region + "</td></tr>" 
+                    + "<tr><th>Species</th><td>" + feature.properties.Species + "</td></tr>" 
+                    + "<tr><th>Date Planted</th><td>" + "<b>" +feature.properties.DatePlante +"</b></td></tr><table>";
+      layer.on({
+        click: function (e) {
+          $("#feature-title").html(feature.properties.Geocode);
+          $("#feature-info").html(content);
+          $("#featureModal").modal("show"); 
+          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
+        }
+      });
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/seeds.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Seedlingsearch.push({
+        name: layer.feature.properties.Geocode,
+        address: layer.feature.properties.Region,
+        source: "rizalSeedlingPlants",
+        id: L.stamp(layer),
+        lat: layer.feature.geometry.coordinates[1],
+        lng: layer.feature.geometry.coordinates[0]
+      });
+    }
+  }
+});
+$.getJSON("json/rizal_seedling_plants.geojson", function (data) {
+  rizalSeedlingPlants.addData(data);
+  map.addLayer(rizalSeedlingPlantsLayer);
+});
+
+// Total Plants
+var rizalTotalPlantsLayer = L.geoJson(null);
+var rizalTotalPlants = L.geoJson(null, {
+  pointToLayer: function (feature, latlng) {
+    return L.marker(latlng, {
+      icon: L.icon({
+        iconUrl: "assets/img/total.png",
+        iconSize: [15,15],
+        iconAnchor: [1, 1],
+        popupAnchor: [0, -25]
+      }),
+      title: feature.properties.Geocode,
+      riseOnHover: true
+    });
+  },
+  onEachFeature: function (feature, layer) {
+    if (feature.properties) {
+      var content ="<table class='table table-striped table-bordered table-condensed'>" 
+                    + "<tr><th>Geocode</th><td>" + feature.properties.Geocode + "</td></tr>" 
+                    + "<tr><th>Region</th><td>" + feature.properties.Region + "</td></tr>" 
+                    + "<tr><th>Species</th><td>" + feature.properties.Species + "</td></tr>" 
+                    + "<tr><th>Date Planted</th><td>" + "<b>" +feature.properties.DatePlante +"</b></td></tr><table>";
+layer.on({
+        click: function (e) {
+          $("#feature-title").html(feature.properties.Geocode);
+          $("#feature-info").html(content);
+          $("#featureModal").modal("show"); 
+          highlight.clearLayers().addLayer(L.circleMarker([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], highlightStyle));
+        }
+      });
+      $("#feature-list tbody").append('<tr class="feature-row" id="' + L.stamp(layer) + '" lat="' + layer.getLatLng().lat + '" lng="' + layer.getLatLng().lng + '"><td style="vertical-align: middle;"><img width="16" height="18" src="assets/img/total.png"></td><td class="feature-name">' + layer.feature.properties.Geocode + '</td><td style="vertical-align: middle;"><i class="fa fa-chevron-right pull-right"></i></td></tr>');
+      Totalsearch.push({
+        name: layer.feature.properties.Geocode,
+        address: layer.feature.properties.Region,
+        source: "rizalTotalPlants",
+        id: L.stamp(layer),
+        lat: layer.feature.geometry.coordinates[1],
+        lng: layer.feature.geometry.coordinates[0]
+      });
+    }
+  }
+});
+$.getJSON("json/rizal_total_plants.geojson", function (data) {
+  rizalTotalPlants.addData(data);
+  map.addLayer(rizalTotalPlantsLayer);
+});
+
+
+// -------------------------------------------------------- End Rizal ---------------------------------------------------------------------------
 map = L.map("map", {
-  zoom: 10,
+  zoom: 7,
   center: [15.48889, 120.5986],
-  layers: [orthoPhoto, Boundaries, HereDay, markerClusters, highlightArea, highlight],//[mapquestHYB, Boundaries, markerClusters, highlight],
+  layers: [Boundaries, rizalBoundaries, rizalOrthoPhoto, HereDay, markerClusters, highlightArea, highlight],//[mapquestHYB, Boundaries, markerClusters, highlight],
   zoomControl: false,
   attributionControl: false,
-  maxZoom:20
+  maxZoom:21
 });
-
-map.fitBounds(imageBounds);
+map.fitBounds(rizalImageBounds);
+//map.fitBounds(imageBounds);
 
 /* Layer control listeners that allow for a single markerClusters layer */
 map.on("overlayadd", function(e) {
-  if (e.layer === treeLayer) {
-    markerClusters.addLayer(Trees);
+  if (e.layer === rizalMissingPlantsLayer) {
+    markerClusters.addLayer(rizalMissingPlants);
     syncSidebar();
   }
-  if (e.layer === cropareaLayer) {
-    markerClusters.addLayer(CropAreas);
+  if (e.layer === rizalNewPlantsLayer) {
+    markerClusters.addLayer(rizalNewPlants);
+    syncSidebar();
+  }
+  if (e.layer === rizalGrowingPlantsLayer) {
+    markerClusters.addLayer(rizalGrowingPlants);
+    syncSidebar();
+  }
+   if (e.layer === rizalSeedlingPlantsLayer) {
+    markerClusters.addLayer(rizalSeedlingPlants);
+    syncSidebar();
+  }
+  if (e.layer === rizalTotalPlantsLayer) {
+    markerClusters.addLayer(rizalTotalPlants);
     syncSidebar();
   }
 });
 
 map.on("overlayremove", function(e) {
-  if (e.layer === treeLayer) {
-    markerClusters.removeLayer(Trees);
+  if (e.layer === rizalMissingPlantsLayer) {
+    markerClusters.removeLayer(rizalMissingPlants);
     syncSidebar();
   }
-  if (e.layer === cropareaLayer) {
-    markerClusters.removeLayer(CropAreas);
+  if (e.layer === rizalGrowingPlantsLayer) {
+    markerClusters.removeLayer(rizalGrowingPlants);
     syncSidebar();
   }
+  if (e.layer === rizalNewPlantsLayer) {
+    markerClusters.removeLayer(rizalNewPlants);
+    syncSidebar();
+  }
+  if (e.layer === rizalSeedlingPlantsLayer) {
+    markerClusters.removeLayer(rizalSeedlingPlants);
+    syncSidebar();
+  }
+  if (e.layer === rizalTotalPlantsLayer) {
+    markerClusters.removeLayer(rizalTotalPlants);
+    syncSidebar();
+  }
+
 });
 
 /* Filter sidebar feature list to only show features in current map bounds */
@@ -455,12 +639,15 @@ var baseLayers = {
 
 var groupedOverlays = {
   "Reference": {
-    "Boundaries": Boundaries,
-    "Road Network": RoadNetworks
+    //"Boundaries": Boundaries,
+    "Rizal Boundary": rizalBoundaries,
   },
   "Overlays":{
-    "Monitored Trees": treeLayer,
-    "Crop Areas": cropareaLayer 
+    "Missing Plants": rizalMissingPlantsLayer,
+    "Growing Plants": rizalGrowingPlantsLayer,
+    "Newly Replant": rizalNewPlantsLayer,
+    "Seedlings": rizalSeedlingPlantsLayer,
+    "Total Plant Count": rizalTotalPlantsLayer,
   }
 };
 
@@ -503,36 +690,86 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
 
-    var RoadNetworksBH = new Bloodhound({
-    name: "RoadNetworks",
+  //   var RoadNetworksBH = new Bloodhound({
+  //   name: "RoadNetworks",
+  //   datumTokenizer: function (d) {
+  //     return Bloodhound.tokenizers.whitespace(d.name);
+  //   },
+  //   queryTokenizer: Bloodhound.tokenizers.whitespace,
+  //   local: Roadsearch,
+  //   limit: 10
+  // });
+
+  // var TreesBH = new Bloodhound({
+  //   name: "Trees",
+  //   datumTokenizer: function (d) {
+  //     return Bloodhound.tokenizers.whitespace(d.name);
+  //   },
+  //   queryTokenizer: Bloodhound.tokenizers.whitespace,
+  //   local: Treesearch,
+  //   limit: 10
+  // });
+
+  //   var CropAreasBH = new Bloodhound({
+  //   name: "CropAreas",
+  //   datumTokenizer: function (d) {
+  //     return Bloodhound.tokenizers.whitespace(d.name);
+  //   },
+  //   queryTokenizer: Bloodhound.tokenizers.whitespace,
+  //   local: CropAreasearch,
+  //   limit: 10
+  // });
+
+    //Rizal
+    var GrowingBH = new Bloodhound({
+    name: "rizalGrowingPlants",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Roadsearch,
+    local: Growingsearch,
     limit: 10
   });
 
-  var TreesBH = new Bloodhound({
-    name: "Trees",
+  var MissingBH = new Bloodhound({
+    name: "rizalMissingPlants",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: Treesearch,
+    local: Missingsearch,
     limit: 10
   });
 
-    var CropAreasBH = new Bloodhound({
-    name: "CropAreas",
+  var SeedlingBH = new Bloodhound({
+    name: "rizalSeedlingPlants",
     datumTokenizer: function (d) {
       return Bloodhound.tokenizers.whitespace(d.name);
     },
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    local: CropAreasearch,
+    local: Seedlingsearch,
     limit: 10
   });
 
+  var ReplantBH = new Bloodhound({
+    name: "rizalNewPlants",
+    datumTokenizer: function (d) {
+      return Bloodhound.tokenizers.whitespace(d.name);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: Replantsearch,
+    limit: 10
+  });
+
+  var TotalBH = new Bloodhound({
+    name: "rizalTotalPlants",
+    datumTokenizer: function (d) {
+      return Bloodhound.tokenizers.whitespace(d.name);
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    local: Totalsearch,
+    limit: 10
+  });
 
   var geonamesBH = new Bloodhound({
     name: "GeoNames",
@@ -565,9 +802,14 @@ $(document).one("ajaxStop", function () {
     limit: 10
   });
   BoundariesBH.initialize();
-  RoadNetworksBH.initialize();
-  TreesBH.initialize();
-  CropAreasBH.initialize();
+  // RoadNetworksBH.initialize();
+  // TreesBH.initialize();
+  // CropAreasBH.initialize();
+  GrowingBH.initialize();
+  MissingBH.initialize();
+  ReplantBH.initialize();
+  TotalBH.initialize();
+  SeedlingBH.initialize();
   geonamesBH.initialize();
 
   /* instantiate the typeahead UI */
@@ -583,26 +825,43 @@ $(document).one("ajaxStop", function () {
       header: "<h4 class='typeahead-header'>Boundaries</h4>"
     }
   },{
-    name: "RoadNetworks",
+    name: "rizalGrowingPlants",
     displayKey: "name",
-    source: RoadNetworksBH.ttAdapter(),
+    source: GrowingBH.ttAdapter(),
     templates: {
-      header: "<h4 class='typeahead-header'>Road Networks</h4>"
-    }
-  }, {
-    name: "Trees",
-    displayKey: "name",
-    source: TreesBH.ttAdapter(),
-    templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/TreeIcon.png' width='24' height='28'>&nbsp;Monitored Trees</h4>",
+      header: "<h4 class='typeahead-header'><img src='assets/img/grow.png' width='24' height='28'>&nbsp;Growing Plants</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   }, {
-    name: "CropAreas",
+    name: "rizalMissingPlants",
     displayKey: "name",
-    source: CropAreasBH.ttAdapter(),
+    source: MissingBH.ttAdapter(),
     templates: {
-      header: "<h4 class='typeahead-header'><img src='assets/img/cropArea.png' width='24' height='28'>&nbsp;Crop Areas</h4>",
+      header: "<h4 class='typeahead-header'><img src='assets/img/miss.png' width='24' height='28'>&nbsp;Missing Plants</h4>",
+      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
+    }
+  }, {
+    name: "rizalNewPlants",
+    displayKey: "name",
+    source: ReplantBH.ttAdapter(),
+    templates: {
+      header: "<h4 class='typeahead-header'><img src='assets/img/newlyReplant.png' width='24' height='28'>&nbsp;Newly Replanted</h4>",
+      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
+    }
+  }, {
+    name: "rizalSeedlingPlants",
+    displayKey: "name",
+    source: SeedlingBH.ttAdapter(),
+    templates: {
+      header: "<h4 class='typeahead-header'><img src='assets/img/seeds.png' width='24' height='28'>&nbsp;Seedling</h4>",
+      suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
+    }
+  }, {
+    name: "rizalTotalPlants",
+    displayKey: "name",
+    source: TotalBH.ttAdapter(),
+    templates: {
+      header: "<h4 class='typeahead-header'><img src='assets/img/total.png' width='24' height='28'>&nbsp;Total Plants</h4>",
       suggestion: Handlebars.compile(["{{name}}<br>&nbsp;<small>{{address}}</small>"].join(""))
     }
   },{
@@ -616,21 +875,45 @@ $(document).one("ajaxStop", function () {
     if (datum.source === "Boundaries") {
       map.fitBounds(datum.bounds);
     }
-    if (datum.source === "RoadNetworks") {
-      map.fitBounds(datum.bounds);
-    }
-    if (datum.source === "Trees") {
-      if (!map.hasLayer(treeLayer)) {
-        map.addLayer(treeLayer);
+    if (datum.source === "rizalMissingPlants") {
+      if (!map.hasLayer(rizalMissingPlantsLayer)) {
+        map.addLayer(rizalMissingPlantsLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
         map._layers[datum.id].fire("click");
       }
     }
-    if (datum.source === "CropAreas") {
-      if (!map.hasLayer(cropareaLayer)) {
-        map.addLayer(cropareaLayer);
+      if (datum.source === "rizalGrowingPlants") {
+      if (!map.hasLayer(rizalGrowingPlantsLayer)) {
+        map.addLayer(rizalGrowingPlantsLayer);
+      }
+      map.setView([datum.lat, datum.lng], 17);
+      if (map._layers[datum.id]) {
+        map._layers[datum.id].fire("click");
+      }
+    }
+      if (datum.source === "rizalNewPlants") {
+      if (!map.hasLayer(rizalNewPlantsLayer)) {
+        map.addLayer(rizalNewPlantsLayer);
+      }
+      map.setView([datum.lat, datum.lng], 17);
+      if (map._layers[datum.id]) {
+        map._layers[datum.id].fire("click");
+      }
+    }
+      if (datum.source === "rizalTotalPlants") {
+      if (!map.hasLayer(rizalTotalPlantsLayer)) {
+        map.addLayer(rizalTotalPlantsLayer);
+      }
+      map.setView([datum.lat, datum.lng], 17);
+      if (map._layers[datum.id]) {
+        map._layers[datum.id].fire("click");
+      }
+    }
+      if (datum.source === "rizalSeedlingPlants") {
+      if (!map.hasLayer(rizalSeedlingPlantsLayer)) {
+        map.addLayer(rizalSeedlingPlantsLayer);
       }
       map.setView([datum.lat, datum.lng], 17);
       if (map._layers[datum.id]) {
